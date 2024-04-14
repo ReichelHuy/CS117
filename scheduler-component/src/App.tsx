@@ -6,45 +6,38 @@ import { registerLicense } from '@syncfusion/ej2-base';
 import { DataManager, WebApiAdaptor} from '@syncfusion/ej2-data';
 registerLicense('Ngo9BigBOggjHTQxAR8/V1NBaF5cXmZCe0x3Rnxbf1x0ZFRHal5ZTnRXUiweQnxTdEFjXX5dcXVXTmJUWUFxWg==')
 
-
-
-// function App() {
-//   return (
-//     <div className="App">
-//       <header className="App-header">
-//         <img src={logo} className="App-logo" alt="logo" />
-//         <p>
-//           Edit <code>src/App.tsx</code> and save to reload.
-//         </p>
-//         <a
-//           className="App-link"
-//           href="https://reactjs.org"
-//           target="_blank"
-//           rel="noopener noreferrer"
-//         >
-//           Learn React
-//         </a>
-//       </header>
-//     </div>
-//   );
-// }
-
 class App extends React.Component {
   private localData: EventSettingsModel = {
     dataSource: [{
-      EndTime: new Date(2019, 0, 11, 6, 30),
-      StartTime: new Date(2019, 0, 11, 4, 0)
-    }]
+      End: new Date(2024, 3, 14, 6, 30),
+      Start: new Date(2024, 3, 14, 4, 0),
+      Subject: 'Testing',
+      IsAllDay: true,
+      RecurrenceRule: 'FREQ=DAILY;INTERVAL=1;COUNT=10',
+      IsBlock: true
+    },
+    {
+      Id:2,
+      End: new Date(2024, 3, 14, 6, 30),
+      Start: new Date(2024, 3, 14, 4, 0),
+      Summary: 'Meeting',
+      IsReadonly: true
+    }],
+    fields: {
+      subject: {name: 'Summary', default: 'No title is provided.'},
+      startTime: {name: 'Start'},
+      endTime: {name: 'End'}
+    }
   };
   private remoteData = new DataManager({
-      url : "https://js.syncfusion.com/demos/ejservices/api/Schedule/LoadData",
+      url : 'https://services.syncfusion.com/js/production/api/schedule',
       adaptor : new WebApiAdaptor,
       crossDomain : true
   });
     
   public render() {
-    return <ScheduleComponent currentView='Month' selectedDate={new Date(2017,5,5)} 
-    eventSettings={{ dataSource: this.remoteData}}>
+    return <ScheduleComponent currentView='Month' selectedDate={new Date(2024,3,14)} 
+    eventSettings={this.localData}>
       <Inject services={[Day,Week, WorkWeek , Month , Agenda]}/>
     </ScheduleComponent>
   }
