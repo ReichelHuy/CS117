@@ -7,6 +7,19 @@ import { DataManager, WebApiAdaptor } from '@syncfusion/ej2-data';
 import { TreeViewComponent, DragAndDropEventArgs } from '@syncfusion/ej2-react-navigations';
 registerLicense('Ngo9BigBOggjHTQxAR8/V1NBaF5cXmZCe0x3Rnxbf1x0ZFRHal5ZTnRXUiweQnxTdEFjXX5dcXVXTmJUWUFxWg==') // license sử dụng nền tảng mà không bị watermask
 
+
+type TreeViewData = {
+  Id: number;
+  Subject: string;
+  Location: string
+}
+
+type FieldSetting = {
+  dataSource: TreeViewData[];
+  id: string;
+  text: string;
+  loc: string;
+}
 class App extends React.Component {
   public schedule0bj: ScheduleComponent;
   constructor(props: any) {
@@ -17,8 +30,8 @@ class App extends React.Component {
     //local data là dữ liệu được thiết lập local
     dataSource: [{
       Id: 1,
-      End: new Date(2024, 3, 15, 6, 30), // thời gian kết thúc sự kiện (YY,MM,DD, giờ, phút) lưu ý, tháng lấy index từ 0, nghĩa là 0 là tháng 1
-      Start: new Date(2024, 3, 15, 4, 0), // thời gian bắt đầu sự kiện
+      EndTime: new Date(2024, 3, 15, 6, 30), // thời gian kết thúc sự kiện (YY,MM,DD, giờ, phút) lưu ý, tháng lấy index từ 0, nghĩa là 0 là tháng 1
+      StartTime: new Date(2024, 3, 15, 4, 0), // thời gian bắt đầu sự kiện
       Subject: 'Testing', // nội dung 
       Summary: 'Yoga club',
       Location: 'Yoga Cener',
@@ -29,17 +42,23 @@ class App extends React.Component {
     {
       // tương tự như trên 
       Id: 2,
-      End: new Date(2024, 3, 14, 6, 30),
-      Start: new Date(2024, 3, 14, 4, 0),
+      EndTime: new Date(2024, 3, 14, 6, 30),
+      StartTime: new Date(2024, 3, 14, 4, 0),
       Summary: 'Meeting',
       Location: 'Tower Park',
       //  IsReadonly: true //không thể xóa
     }],
     fields: {
-      // đặt biến
-      subject: { name: 'Summary', default: 'No title is provided.' },
-      startTime: { name: 'Start' },
-      endTime: { name: 'End' }
+
+      // subject: { name: 'Summary', default: 'No title is provided.' },
+      // startTime: { name: 'Start' },
+      // endTime: { name: 'End' },
+      // location: { name: 'Location' }
+      id: 'Id',
+      subject: { name: 'Subject', default: 'Event' },
+      startTime: { name: 'StartTime' },
+      endTime: { name: 'EndTime' },
+      location: { name: 'Location' }
     }
   };
   private remoteData = new DataManager({
@@ -66,18 +85,22 @@ class App extends React.Component {
     args.interval = 10; // khoảng cách kéo là 10 phút
   }
 
-  private treeViewData: { [key: string]: Object }[] = [
-    { Id: 1, Subject: 'Peter' },
-    { Id: 2, Subject: 'James' },
-    { Id: 3, Subject: 'David' },
-    { Id: 4, Subject: 'John' },
-    { Id: 5, Subject: 'Steve' },
+  private treeViewData: TreeViewData[] = [
+    { Id: 7, Subject: 'A', Location: 'Park', },
+    { Id: 6, Subject: 'J', Location: 'Tower', },
+    { Id: 3, Subject: 'D', Location: 'SuperMarket', },
+    { Id: 4, Subject: 'Jo', Location: 'School', },
+    { Id: 5, Subject: 'S', Location: 'Museum', },
   ];
-  public field: Object = { dataSource: this.treeViewData, id: 'Id', text: 'Subject' }
+
+  public field: FieldSetting = { dataSource: this.treeViewData, id: 'Id', text: 'Location', loc: 'Subject' };
+
   public onTreeDragStop(args: DragAndDropEventArgs): void {
     let cellData: CellClickEventArgs = this.schedule0bj.getCellDetails(args.target);
+
     let eventData: { [key: string]: Object } = {
-      Subject: args.draggedNodeData.text,
+      Subject: args.draggedNodeData.loc,
+      Location: args.draggedNodeData.text,
       StartTime: cellData.startTime,
       EndTime: cellData.endTime,
       IsAllDay: cellData.isAllDay
@@ -85,47 +108,78 @@ class App extends React.Component {
     this.schedule0bj.openEditor(eventData, "Add", true)
     this.schedule0bj.addEvent(eventData);
   }
-  public render() {
-    // /*
-    return (<div>
-      <div className='scheduler-title-container'>Doctor Appointments</div>
-      <div className='scheduler-component'>
-
-        <ScheduleComponent ref={schedule => this.schedule0bj = schedule as ScheduleComponent} currentView='Month' height='550px' selectedDate={new Date(2024, 3, 15)}  // currentView để điều chỉnh góc nhìn
-          eventSettings={this.localData} // hoặc DataManager=this.remoteData để sử dụng remotedata
-          // allowDragAndDrop={true} // true để sử dụng drag and drop or false
-          // allowResizing={true}  //  true để sử dụng resize or false
-          dragStart={this.onDragStart.bind(this)} // sử dụng dragStart
-          resizeStart={this.onResizeStart.bind(this)} // sử dụng resizeStart
-        >
-          <Inject services={[Day, Week, WorkWeek, Month, Agenda, TimelineViews, TimelineMonth, DragAndDrop, Resize]} />
-        </ScheduleComponent>
-
-      </div>
-      <div className='treeview-title-container'>Patient List</div>
-      <div className='treeview-component'>
-        <TreeViewComponent fields={this.field} allowDragAndDrop={true}
-          nodeDragStop={this.onTreeDragStop.bind(this)} />
-      </div>
-    </div>)
-
-    // */
-    /*
-     return (<ScheduleComponent width='100%' height='550px' currentView ="Week"
-     selectedDate={new Date(2024, 3, 14)} eventSettings={ {dataSource: this.remoteData} } >
-     <ViewsDirective>
-       <ViewDirective option='Day' interval={3} displayName='3 days' startHour='00:00' endHour='23:00'></ViewDirective>
-       <ViewDirective option='TimelineDay'></ViewDirective>
-       <ViewDirective option='Week' interval = {2}></ViewDirective>
-       <ViewDirective option='WorkWeek'></ViewDirective>
-       <ViewDirective option='Month' isSelected={true} showWeekNumber={true} showWeekend={false}></ViewDirective>
-       <ViewDirective option='TimelineMonth'></ViewDirective>
-       <ViewDirective option='Agenda'></ViewDirective>
-     </ViewsDirective>
-     <Inject services={[Day, Week, WorkWeek,Month, Agenda, TimelineViews, TimelineMonth, DragAndDrop, Resize]} />
-   </ScheduleComponent>)
-   */
+  private eventTemplate(props: { [key: string]: any }): JSX.Element {
+    return (<div className="template-wrap">{props.Location}</div>);
   }
+  private weekEventTemplate(props: { [ket: string]: any }): JSX.Element {
+    return (<div className="week-template-wrap">{props.Subject}</div>);
+  }
+  // private weekEventTemplate(props: { [ket: string]: any }): JSX.Element {
+  //   return (<div className="week-template-wrap" style={{ background: props.SecondaryColor }}>
+  //     <div className="subject" style={{ background: props.PrimaryColor }}>
+  //       {props.Subject}</div>
+  //     <div className="time" style={{ background: props.PrimaryColor }}>
+  //       Time:{this.getTime(props.StartTime as Date)} - {this.getTime(props.EndTime as Date)}
+  //     </div>
+  //     <div className="image">
+  //       <img className="images" src={"https://ej2.syncfusion.com/react/demo/src/schedule/images" + props.Img + "svg"}
+  //         alt={props.img} />
+
+  //     </div>
+  //     <div className="footer" style={{ background: props.PrimaryColor }}></div></div>
+
+  //   );
+  // }
+  // Method to format Date into time string
+  getTime(date: Date): string {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  public render() {
+    return (
+      <div>
+        <div className='scheduler-title-container'>Doctor Appointments</div>
+        <div className='scheduler-component'>
+          <ScheduleComponent ref={(schedule) => this.schedule0bj = schedule as ScheduleComponent}
+            currentView='Month' width='100%' height='550px' selectedDate={new Date(2024, 3, 15)}
+            eventSettings={this.localData}
+            dragStart={this.onDragStart.bind(this)}
+            resizeStart={this.onResizeStart.bind(this)}>
+            <ViewsDirective>
+              <ViewDirective option='Day' />
+              <ViewDirective option='Week' eventTemplate={this.weekEventTemplate.bind(this)} />
+              <ViewDirective option='WorkWeek' />
+              <ViewDirective option='Month' eventTemplate={this.eventTemplate.bind(this)} />
+            </ViewsDirective>
+            <Inject services={[Day, Week, WorkWeek, Month, Agenda, TimelineViews, TimelineMonth, DragAndDrop, Resize]} />
+          </ScheduleComponent>
+        </div>
+        <div className='treeview-title-container'>Patient List</div>
+        <div className='treeview-component'>
+          <TreeViewComponent fields={this.field} allowDragAndDrop={true}
+            nodeDragStop={this.onTreeDragStop.bind(this)} />
+        </div>
+      </div>
+    );
+  }
+
+
+  // */
+  /*
+   return (<ScheduleComponent width='100%' height='550px' currentView ="Week"
+   selectedDate={new Date(2024, 3, 14)} eventSettings={ {dataSource: this.remoteData} } >
+   <ViewsDirective>
+     <ViewDirective option='Day' interval={3} displayName='3 days' startHour='00:00' endHour='23:00'></ViewDirective>
+     <ViewDirective option='TimelineDay'></ViewDirective>
+     <ViewDirective option='Week' interval = {2}></ViewDirective>
+     <ViewDirective option='WorkWeek'></ViewDirective>
+     <ViewDirective option='Month' isSelected={true} showWeekNumber={true} showWeekend={false}></ViewDirective>
+     <ViewDirective option='TimelineMonth'></ViewDirective>
+     <ViewDirective option='Agenda'></ViewDirective>
+   </ViewsDirective>
+   <Inject services={[Day, Week, WorkWeek,Month, Agenda, TimelineViews, TimelineMonth, DragAndDrop, Resize]} />
+ </ScheduleComponent>)
+ */
 }
 
 export default App;

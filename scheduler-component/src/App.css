@@ -65,3 +65,28 @@
   float: right;
   width: 20%;
 }
+
+.e-schedule .e-appointment-details {
+  padding: 0 !important;
+}
+
+.week-template-wrap {
+  background: black;
+  padding-left: 20px;
+  padding-right: 5px;
+  padding-top: 7px;
+  padding-bottom: 10px;
+  font-size: 14px;
+  font-weight: 500;
+
+}
+
+.template-wrap {
+  background: green;
+  padding-left: 20px;
+  padding-right: 5px;
+  padding-top: 7px;
+  padding-bottom: 10px;
+  font-size: 14px;
+  font-weight: 500;
+}
