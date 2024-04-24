@@ -34,7 +34,7 @@ class App extends React.Component {
       StartTime: new Date(2024, 3, 15, 4, 0), // thời gian bắt đầu sự kiện
       Subject: 'Testing', // nội dung 
       Summary: 'Yoga club',
-      Location: 'Yoga Cener',
+      Location: 'Yoga Center',
       IsAllDay: true, // true để chỉ là sự kiện diễn ra nguyên ngày
       //  RecurrenceRule: 'FREQ=DAILY;INTERVAL=1;COUNT=10', // freq cho thấy tần số , count để đếm số sự kiện
       //  IsBlock: true // false để có thể điều chỉnh thời gian biểu thêm vào cho ngày, true nghĩa là đã có 1 sự kiện, không thể thêm vào nữa

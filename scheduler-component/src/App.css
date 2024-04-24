@@ -67,7 +67,9 @@
 }
 
 .e-schedule .e-appointment-details {
-  padding: 0 !important;
+  /* padding: 0 !important;
+  padd */
+  padding-bottom: 10px;
 }
 
 .week-template-wrap {
@@ -83,10 +85,11 @@
 
 .template-wrap {
   background: green;
-  padding-left: 20px;
+  padding-left: 5px;
   padding-right: 5px;
-  padding-top: 7px;
+  padding-top: 2px;
   padding-bottom: 10px;
+  margin-bottom: 40px;
   font-size: 14px;
   font-weight: 500;
 }
