@@ -1,10 +1,13 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { Inject, ScheduleComponent, Day, Week, WorkWeek, Month, Agenda, EventSettingsModel, ViewsDirective, ViewDirective, TimelineViews, TimelineMonth, DragAndDrop, Resize, DragEventArgs, ResizeEventArgs, ScrollOptions, NavigateOptions, CellClickEventArgs } from '@syncfusion/ej2-react-schedule';
+import { Inject, ScheduleComponent, Day, Week, WorkWeek, Month, Agenda, EventSettingsModel, ViewsDirective, ViewDirective, TimelineViews, TimelineMonth, DragAndDrop, Resize, DragEventArgs, ResizeEventArgs, ScrollOptions, NavigateOptions, CellClickEventArgs,ResourcesDirective,ResourceDirective } from '@syncfusion/ej2-react-schedule';
 import { registerLicense } from '@syncfusion/ej2-base';
 import { DataManager, WebApiAdaptor } from '@syncfusion/ej2-data';
 import { TreeViewComponent, DragAndDropEventArgs } from '@syncfusion/ej2-react-navigations';
+import {DropDownListComponent} from '@syncfusion/ej2-react-dropdowns';
+import {DateTimePickerComponent} from '@syncfusion/ej2-react-calendars';
+import {L10n} from '@syncfusion/ej2-base';
 registerLicense('Ngo9BigBOggjHTQxAR8/V1NBaF5cXmZCe0x3Rnxbf1x0ZFRHal5ZTnRXUiweQnxTdEFjXX5dcXVXTmJUWUFxWg==') // license sử dụng nền tảng mà không bị watermask
 
 
@@ -13,7 +16,18 @@ type TreeViewData = {
   Subject: string;
   Location: string
 }
+L10n.load({
+  'en-US': {
+    'schedule':{
+      'saveButton':'Add',
+      'cancelButton':'Close',
+      'removeButton':'Delete',
+      'newEvent':'AddEvent'
+    }
+  }
+}
 
+)
 type FieldSetting = {
   dataSource: TreeViewData[];
   id: string;
@@ -35,7 +49,8 @@ class App extends React.Component {
       Subject: 'Testing', // nội dung 
       Summary: 'Yoga club',
       Location: 'Yoga Center',
-      IsAllDay: true, // true để chỉ là sự kiện diễn ra nguyên ngày
+      IsAllDay: true,
+      ResourceId:1 // true để chỉ là sự kiện diễn ra nguyên ngày
       //  RecurrenceRule: 'FREQ=DAILY;INTERVAL=1;COUNT=10', // freq cho thấy tần số , count để đếm số sự kiện
       //  IsBlock: true // false để có thể điều chỉnh thời gian biểu thêm vào cho ngày, true nghĩa là đã có 1 sự kiện, không thể thêm vào nữa
     },
@@ -46,6 +61,7 @@ class App extends React.Component {
       StartTime: new Date(2024, 3, 14, 4, 0),
       Summary: 'Meeting',
       Location: 'Tower Park',
+      ResourceId:2
       //  IsReadonly: true //không thể xóa
     }],
     fields: {
@@ -59,6 +75,7 @@ class App extends React.Component {
       startTime: { name: 'StartTime' },
       endTime: { name: 'EndTime' },
       location: { name: 'Location' }
+     
     }
   };
   private remoteData = new DataManager({
@@ -134,31 +151,110 @@ class App extends React.Component {
   getTime(date: Date): string {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
+  public resourceDataSource:Object[] =[
+    {Name:'John', Id:1,Color:'#ea7a57' },
+    {Name:'Henry', Id:2,Color:'#357CD2' },
+    {Name:'Jack', Id:3,Color:'#7fa900' }
+  ];
+  private  editorWindowTemplate = (props:any): JSX.Element {
+    return (<table className="custom-event-editor" style>
+        <tbody>
+          <tr>
+            <td className="e-textlabel">Summary</td>
+            <td colSpan={4}>
+              <input id="Summary" className="e-field e-input" type="text" name="Subject" style={{width:'100%'}} />
+            </td>
+          </tr>
+          <tr>
+            <td className="e-textlabel">Status</td>
+            <td colSpan={4}>
+              <DropDownListComponent
+                id="EventType"
+                placeholder="Choose status"
+                data-name="Status"
+                className="e-field"
+                style={{width:'100%'}}
+                dataSource={['New', 'Requested', 'Confirmed']}
+                placeholder= 'Choose status'
+                dataname='Event type' 
+                value={props.EventType || null}
+              />
+            </td>
+          </tr>
+          <tr>
+            <td className="e-textlabel">From</td>
+            <td colSpan={4}>
+              <DateTimePickerComponent
+                format="dd/MM/yy hh:mm a"
+                id="StartTime"
+                data-name="StartTime"
+                value={new Date(props.startTime || props.StartTime)}
+                className="e-field"
+                style={{width:'100%'}}
+              />
+            </td>
+          </tr>
+          <tr>
+            <td className="e-textlabel">To</td>
+            <td colSpan={4}>
+              <DateTimePickerComponent
+                format="dd/MM/yy hh:mm a"
+                id="EndTime"
+                data-name="EndTime"
+                value={new Date(props.endTime || props.EndTime)}
+                className="e-field"
+              />
+            </td>
+          </tr>
+          <tr>
+            <td className="e-textlabel">Recurrence</td>
+            <td colSpan={4}>
+              <RecurrenceEditorComponent ref={recurrObject} id="RecurrenceEditor" />
+            </td>
+          </tr>
+          <tr>
+            <td className="e-textlabel">Reason</td>
+            <td colSpan={4}>
+              <textarea
+                id="Description"
+                className="e-field e-input"
+                name="Description"
+                rows={3}
+                cols={50}
+                style={{width:'100%'}}
+              />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    ) ;
+  };
 
   public render() {
     return (
-      <div>
+      <><div>
         <div className='scheduler-title-container'>Doctor Appointments</div>
         <div className='scheduler-component'>
           <ScheduleComponent ref={(schedule) => this.schedule0bj = schedule as ScheduleComponent}
             currentView='Month' width='100%' height='550px' selectedDate={new Date(2024, 3, 15)}
-            eventSettings={this.localData}
-            dragStart={this.onDragStart.bind(this)}
-            resizeStart={this.onResizeStart.bind(this)}>
-            <ViewsDirective>
-              <ViewDirective option='Day' />
-              <ViewDirective option='Week' eventTemplate={this.weekEventTemplate.bind(this)} />
-              <ViewDirective option='WorkWeek' />
-              <ViewDirective option='Month' eventTemplate={this.eventTemplate.bind(this)} />
-            </ViewsDirective>
-            <Inject services={[Day, Week, WorkWeek, Month, Agenda, TimelineViews, TimelineMonth, DragAndDrop, Resize]} />
-          </ScheduleComponent>
-        </div>
-        <div className='treeview-title-container'>Patient List</div>
-        <div className='treeview-component'>
+            eventSettings={this.localData} />
+          <ResourcesDirective>
+            <ResourceDirective field='ResourceId' title='Resource Name' name='Resources' textfield='Name' id='Id' colorfield='Color'></ResourceDirective>
+          </ResourcesDirective>
+          dragStart={this.onDragStart.bind(this)}
+          resizeStart={this.onResizeStart.bind(this)}
+          <ViewsDirective>
+            <ViewDirective option='Day' />
+            <ViewDirective option='Week' eventTemplate={this.weekEventTemplate.bind(this)} />
+            <ViewDirective option='WorkWeek' />
+            <ViewDirective option='Month' eventTemplate={this.eventTemplate.bind(this)} />
+          </ViewsDirective>
+          <Inject services={[Day, Week, WorkWeek, Month, Agenda, TimelineViews, TimelineMonth, DragAndDrop, Resize]} />
+        </ScheduleComponent>
+      </div><div className='treeview-title-container'>Patient List</div><div className='treeview-component'>
           <TreeViewComponent fields={this.field} allowDragAndDrop={true}
             nodeDragStop={this.onTreeDragStop.bind(this)} />
-        </div>
+        </div></>
       </div>
     );
   }
