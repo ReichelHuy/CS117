@@ -151,11 +151,11 @@ class App extends React.Component {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
   public resourceDataSource:Object[] =[
-    {Name:'John', Id:1,Color:'#ea7a57' },
-    {Name:'Henry', Id:2,Color:'#357CD2' },
-    {Name:'Jack', Id:3,Color:'#7fa900' }
+    { OwnerText: 'Nancy', Id: 1, OwnerColor: '#ffaa00' },
+    { OwnerText: 'Steven', Id: 2, OwnerColor: '#f8a398' },
+    { OwnerText: 'Michael', Id: 3, OwnerColor: '#7499e1' }
   ];
-  private App = () => {
+  private editorWindowTemplate = () => {
     const editorTemplate = (props:any) => {
       return (props !== undefined ? <table className="custom-event-editor" ><tbody>
         <tr><td className="e-textlabel">Summary</td><td colSpan={4}>
@@ -186,7 +186,21 @@ class App extends React.Component {
     </ScheduleComponent>);
   }
     ;
-
+    private MultipleResources = () => {
+      
+      const eventSettings: EventSettingsModel = { dataSource: this.resourceDataSource };
+    
+      return (
+        <ScheduleComponent width='100%' height='550px' selectedDate={new Date(2018, 3, 1)} eventSettings={eventSettings}>
+          <ResourcesDirective>
+            <ResourceDirective field='OwnerId' title='Owner' name='Owners' allowMultiple={true} dataSource={this.resourceDataSource} textField='OwnerText' idField='Id' colorField='OwnerColor'>
+            </ResourceDirective>
+          </ResourcesDirective>
+          <Inject services={[Day, Week, WorkWeek, Month, Agenda]} />
+        </ScheduleComponent>
+      );
+    }
+    ;
     public render() {
       return (
         <>
@@ -208,6 +222,10 @@ class App extends React.Component {
           </div>
           <div className='treeview-title-container'>Patient List</div>
           <div className='treeview-component'>
+          <div>
+        {this.editorWindowTemplate()}
+        {this.MultipleResources()}
+      </div>
             <TreeViewComponent fields={this.field} allowDragAndDrop={true}
               nodeDragStop={this.onTreeDragStop.bind(this)} />
           </div>
