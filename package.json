@@ -3,6 +3,10 @@
     "@syncfusion/ej2-react-calendars": "^25.1.42",
     "@syncfusion/ej2-react-dropdowns": "^25.1.41",
     "@syncfusion/ej2-react-navigations": "^25.1.42",
-    "@syncfusion/ej2-react-schedule": "^25.1.42"
+    "@syncfusion/ej2-react-schedule": "^25.1.42",
+    "JSX": "^1.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.1"
   }
 }
