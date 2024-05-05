@@ -1,12 +1,13 @@
 import React from 'react';
 import './App.css';
-import { Inject, ScheduleComponent, Day, Week, WorkWeek, Month, Agenda, EventSettingsModel, ViewsDirective, ViewDirective, TimelineViews, TimelineMonth, DragAndDrop, Resize, DragEventArgs, ResizeEventArgs, ScrollOptions, NavigateOptions, CellClickEventArgs,ResourcesDirective,ResourceDirective } from '@syncfusion/ej2-react-schedule';
+import { Inject,getWeekNumber, HeaderRowsDirective, HeaderRowDirective , ScheduleComponent, Day, Week, WorkWeek, Month, Agenda, EventSettingsModel, ViewsDirective, ViewDirective, TimelineViews, TimelineMonth, DragAndDrop, Resize, DragEventArgs, ResizeEventArgs, ScrollOptions, NavigateOptions, CellClickEventArgs,ResourcesDirective,ResourceDirective, GroupModel , CellTemplateArgs } from '@syncfusion/ej2-react-schedule';
 import { registerLicense } from '@syncfusion/ej2-base';
 import { DataManager, WebApiAdaptor } from '@syncfusion/ej2-data';
 import { TreeViewComponent, DragAndDropEventArgs } from '@syncfusion/ej2-react-navigations';
 import {DropDownListComponent} from '@syncfusion/ej2-react-dropdowns';
 import {DateTimePickerComponent} from '@syncfusion/ej2-react-calendars';
-import {L10n} from '@syncfusion/ej2-base';
+import {L10n, Internationalization} from '@syncfusion/ej2-base';
+
 registerLicense('Ngo9BigBOggjHTQxAR8/V1NBaF5cXmZCe0x3Rnxbf1x0ZFRHal5ZTnRXUiweQnxTdEFjXX5dcXVXTmJUWUFxWg==') // license sử dụng nền tảng mà không bị watermask
 
 
@@ -14,6 +15,7 @@ type TreeViewData = {
   Id: number;
   Subject: string;
   Location: string
+
 }
 L10n.load({
   'en-US': {
@@ -34,6 +36,7 @@ type FieldSetting = {
   loc: string;
 }
 class App extends React.Component {
+  private instance : Internationalization = new Internationalization();
   public schedule0bj: ScheduleComponent;
   constructor(props: any) {
     super(props);
@@ -49,7 +52,7 @@ class App extends React.Component {
       Summary: 'Yoga club',
       Location: 'Yoga Center',
       IsAllDay: true,
-      ResourceId:1 // true để chỉ là sự kiện diễn ra nguyên ngày
+      ResourceId:2 // true để chỉ là sự kiện diễn ra nguyên ngày
       //  RecurrenceRule: 'FREQ=DAILY;INTERVAL=1;COUNT=10', // freq cho thấy tần số , count để đếm số sự kiện
       //  IsBlock: true // false để có thể điều chỉnh thời gian biểu thêm vào cho ngày, true nghĩa là đã có 1 sự kiện, không thể thêm vào nữa
     },
@@ -60,9 +63,18 @@ class App extends React.Component {
       StartTime: new Date(2024, 3, 14, 4, 0),
       Summary: 'Meeting',
       Location: 'Tower Park',
-      ResourceId:2
+      ResourceId:1
       //  IsReadonly: true //không thể xóa
-    }],
+    },
+    {
+      Id: 3,
+      EndTime: new Date(2024, 3, 14, 6, 30),
+      StartTime: new Date(2024, 3, 14, 4, 0),
+      Summary: 'Meeting',
+      Location: 'Tower Park',
+      ResourceId:3
+    }
+  ],
     fields: {
 
       // subject: { name: 'Summary', default: 'No title is provided.' },
@@ -74,7 +86,6 @@ class App extends React.Component {
       startTime: { name: 'StartTime' },
       endTime: { name: 'EndTime' },
       location: { name: 'Location' }
-     
     }
   };
   private remoteData = new DataManager({
@@ -150,11 +161,6 @@ class App extends React.Component {
   getTime(date: Date): string {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
-  public resourceDataSource:Object[] =[
-    { OwnerText: 'Nancy', Id: 1, OwnerColor: '#ffaa00' },
-    { OwnerText: 'Steven', Id: 2, OwnerColor: '#f8a398' },
-    { OwnerText: 'Michael', Id: 3, OwnerColor: '#7499e1' }
-  ];
   private editorWindowTemplate = () => {
     const editorTemplate = (props:any) => {
       return (props !== undefined ? <table className="custom-event-editor" ><tbody>
@@ -191,9 +197,9 @@ class App extends React.Component {
       const eventSettings: EventSettingsModel = { dataSource: this.resourceDataSource };
     
       return (
-        <ScheduleComponent width='100%' height='550px' selectedDate={new Date(2018, 3, 1)} eventSettings={eventSettings}>
+        <ScheduleComponent width='100%' height='550px' selectedDate={new Date(2024, 3, 15)} eventSettings={eventSettings}>
           <ResourcesDirective>
-            <ResourceDirective field='OwnerId' title='Owner' name='Owners' allowMultiple={true} dataSource={this.resourceDataSource} textField='OwnerText' idField='Id' colorField='OwnerColor'>
+            <ResourceDirective field='ResourceId' title='Resource' name='Resources' allowMultiple={true} dataSource={this.resourceDataSource} textField='OwnerText' idField='Id' colorField='OwnerColor'>
             </ResourceDirective>
           </ResourcesDirective>
           <Inject services={[Day, Week, WorkWeek, Month, Agenda]} />
@@ -201,6 +207,37 @@ class App extends React.Component {
       );
     }
     ;
+    public groupData: GroupModel = {
+      resources : ['Resources','Group'],
+      // byDate: true,
+      // enableCompactView: false
+    }
+    public resourceDataSource:Object[] =[
+      { OwnerText: 'Nancy', Id: 1, OwnerColor: '#ffaa00' },
+      { OwnerText: 'Steven', Id: 2, OwnerColor: '#f8a398' },
+      { OwnerText: 'Michael', Id: 3, OwnerColor: '#7499e1' }
+    ];
+    public groupDataSource: object[] =[
+    { Name: 'Task', Id: 1, NameColor: '#ffaa00', GroupId:1 },
+    { Name: 'Task', Id: 2, NameColor: '#f8a398',GroupId:2 },
+    { Name: 'Task', Id: 3, NameColor: '#7499e1', GroupId:2 }
+    ];
+
+
+    public monthTemplate(data:any) : JSX.Element{
+      return (<span>{this.getMonthDetails(data)}</span>);
+    }
+    private getMonthDetails(value: CellTemplateArgs): string {
+      return this.instance.formatDate((value as CellTemplateArgs).date, {skeleton: 'yMMMM'});
+    }
+    public weekTemplate(data:any) : JSX.Element{
+      return (<span>{this.getWeekDetails(data)}</span>);
+    }
+    private getWeekDetails(value: CellTemplateArgs): string{
+      return 'Week' + getWeekNumber((value as CellTemplateArgs).date);
+    }
+
+
     public render() {
       return (
         <>
@@ -208,14 +245,25 @@ class App extends React.Component {
             <div className='scheduler-title-container'>Doctor Appointments</div>
             <div className='scheduler-component'>
               <ScheduleComponent ref={(schedule) => this.schedule0bj = schedule as ScheduleComponent}
-                currentView='Month' width='100%' height='550px' selectedDate={new Date(2024, 3, 15)}
+                currentView='Month' width='100%' height= '550px' selectedDate={new Date(2024, 3, 15)}
                 eventSettings={this.localData}>
                 <ViewsDirective>
                   <ViewDirective option='Day' />
-                  <ViewDirective option='Week' />
-                  <ViewDirective option='WorkWeek' />
+                  <ViewDirective option='Week' group={this.groupData}/>
+                  <ViewDirective option='TimelineMonth' interval={12}/>
                   <ViewDirective option='Month' eventTemplate={this.eventTemplate.bind(this)} />
                 </ViewsDirective>
+                <ResourcesDirective>
+                  <ResourceDirective field='ResourceId' title='Resource' name='Resources' allowMultiple={true} dataSource={this.resourceDataSource} textField='OwnerText' idField='Id' colorField='OwnerColor'>
+                  </ResourceDirective>
+                  <ResourceDirective field="GroupId" name="Group" title="Group name" allowMultiple={true} dataSource={this.groupDataSource} textField='Name' idField='Id' groupIDField='GroupId'>
+                  </ResourceDirective>
+                </ResourcesDirective>
+                <HeaderRowsDirective>
+                  <HeaderRowDirective option="Month" template={this.monthTemplate.bind(this)}></HeaderRowDirective>
+                  <HeaderRowDirective option="Week" template={this.weekEventTemplate.bind(this)}></HeaderRowDirective>
+                  <HeaderRowDirective option="Date" ></HeaderRowDirective>
+                </HeaderRowsDirective>
                 <Inject services={[Day, Week, WorkWeek, Month, Agenda, TimelineViews, TimelineMonth, DragAndDrop, Resize]} />
               </ScheduleComponent>
             </div>
