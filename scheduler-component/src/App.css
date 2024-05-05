@@ -49,7 +49,6 @@
 
 .treeview-title-container {
   display: inline-block;
-  width: 20%;
   padding-left: 20px;
   text-align: left;
   font-weight: 500;
@@ -58,12 +57,16 @@
 .scheduler-component {
   float: left;
   width: 80%;
-
 }
 
 .treeview-component {
   float: right;
   width: 20%;
+  height: 100%;
+  font-size: medium;
+  font-weight: 500;
+  font-family: 'Times New Roman';
+  
 }
 
 .e-schedule .e-appointment-details {
